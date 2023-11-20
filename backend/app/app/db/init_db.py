@@ -31,7 +31,7 @@ def init_db(db: Session) -> None:
         data = json.load(f)
     
     for source in set(data['Source'].values()):
-        crud.license_source.create(db, obj_in=models.LicenseSourceBase(name=source))
+        crud.license_source.create(db, obj_in=models.LicenseSourceBase(name=source, approved=True))
 
     for domain in set(data['Domain'].values()):
         crud.license_domain.create(db, obj_in=models.LicenseDomainBase(name=domain))
@@ -40,8 +40,6 @@ def init_db(db: Session) -> None:
     db.flush()
 
     for i, restriction in data['Restriction'].items():
-        print(data['Source'][str(i)])
-        print(data['Domain'][str(i)])
         source_id = crud.license_source.get_by_name(db, name=data['Source'][str(i)]).id
         domain_id = crud.license_domain.get_by_name(db, name=data['Domain'][str(i)]).id
         crud.license_restriction.create(db, obj_in=models.LicenseRestrictionBase(
