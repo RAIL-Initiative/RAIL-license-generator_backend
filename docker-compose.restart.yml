@@ -1,0 +1,14 @@
+version: "3.3"
+services:
+
+  proxy:
+    restart: always
+
+  db:
+    restart: always
+
+  pgadmin:
+    restart: always
+  
+  backend:
+    restart: always
