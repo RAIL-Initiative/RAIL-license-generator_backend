@@ -1,7 +1,8 @@
 import datetime
 from typing import TYPE_CHECKING, Literal, Optional
 import uuid as uuid_pkg
-from sqlalchemy import Column, String
+from sqlalchemy import String
+from pydantic import root_validator
 
 from sqlmodel import Field, Relationship, SQLModel
 import sqlmodel
@@ -13,8 +14,9 @@ if TYPE_CHECKING:
 
 class LicenseBase(SQLModel):
     timestamp: datetime.datetime = sqlmodel.Field(nullable=False, sa_type=sqlmodel.DateTime(timezone=True))
-    artifact: Literal["A", "M", "S", "AS", "AM", "AMS"] = Field(nullable=False, sa_type=String)
-    license: Literal["OpenRAIL", "ResearchRAIL"] = Field(nullable=False, sa_type=String)
+    name: str = Field(nullable=False)
+    artifact: Literal["", "A", "M", "S", "AS", "AM", "MS", "AMS"] = Field(nullable=False, sa_type=String)
+    license: Literal["OpenRAIL", "ResearchRAIL", "RAIL"] = Field(nullable=False, sa_type=String)
     data: bool = Field(default=False)
     application: bool = Field(default=False)
     model: bool = Field(default=False)
@@ -23,9 +25,19 @@ class LicenseBase(SQLModel):
     researchOnly: bool = Field(default=False)
 
 class LicenseCreate(LicenseBase):
-    specifiedDomain_ids: list[int]
-    additionalRestriction_ids: list[int]
+    specifiedDomain_ids: Optional[list[int]] = []
+    additionalRestriction_ids: Optional[list[int]] = []
 
+    @root_validator
+    def check_license_options(cls, values) -> 'LicenseCreate':
+        if values.get("license") == 'OpenRAIL' and not ( values.get("derivatives") and not values.get("researchOnly")):
+            raise ValueError('OpenRAIL license requires derivatives to be true and researchOnly to be false')
+        if values.get("license") == 'ResearchRAIL' and not ( not values.get("derivatives") and values.get("researchOnly")):
+            raise ValueError('ResearchRAIL license requires derivatives to be false and researchOnly to be true')
+        if values.get("license") == 'RAIL' and not (not values.get("derivatives") and not values.get("researchOnly")):
+            raise ValueError('RAIL license requires derivatives to be false and researchOnly to be false')
+        return values
+    
 class License(LicenseBase, table=True):
     id: uuid_pkg.UUID = Field(
         default_factory=uuid_pkg.uuid4,
