@@ -8,8 +8,11 @@ from app import crud, models
 from app.api import deps
 from app.utils import generate_license_text
 import uuid as uuid_pkg
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
+
+templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/", response_model=List[models.LicenseRead])
@@ -25,7 +28,7 @@ def read_licenses(
     return all_licenses
 
 @router.get("/{id}/generate", response_model=str)
-def read_licenses(
+def generate_license(
     db: Session = Depends(deps.get_db),
     *,
     id: uuid_pkg.UUID,
@@ -34,12 +37,34 @@ def read_licenses(
     Generate license text for license with id "id".
     """
     license = crud.license.get(db, id=id)
-    license_text = generate_license_text(
-        license_type=license.license,
-        artifact_type=license.artifact
-    )
-    return license_text
 
+    LICENSE_NAME= f"{license.license}-{license.artifact}"
+
+    if license.researchOnly or license.license == "ResearchRAIL":
+        TARGET_OBJECT="Artifact(s) and Modifications of the Artifact(s)"
+    else:
+        TARGET_OBJECT="Artifact(s)"
+
+    ARTIFACT = []
+    if "A" in license.artifact:
+        ARTIFACT.append("Application")
+    if "M" in license.artifact:
+        ARTIFACT.append("Model")
+    if "S" in license.artifact:
+        ARTIFACT.append("Source Code")
+    ARTIFACT = ", ".join(ARTIFACT)
+    if len(ARTIFACT) == 0:
+        ARTIFACT = "============ERROR CHECK LICENSE=========="
+
+    return templates.TemplateResponse("license.jinja", {
+        "LICENSE_NAME": LICENSE_NAME,
+        "TARGET_OBJECT": TARGET_OBJECT,
+        "ARTIFACT": ARTIFACT,
+        "LICENSE_TYPE": license.license,
+        "RESTRICTIONS": license.additionalRestrictions,
+        "REUSE_DISTRIBUTION": license.researchOnly,
+        }
+    )
 
 @router.post("/", response_model=models.LicenseRead)
 def create_license(
