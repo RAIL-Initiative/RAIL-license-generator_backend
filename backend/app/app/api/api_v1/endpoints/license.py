@@ -1,6 +1,11 @@
-from typing import Any, List
+import io
+import os
+import tempfile
+from typing import Any, List, Union
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import FileResponse
+import pypandoc
 from sqlalchemy.orm import Session
 from sqlmodel import select
 
@@ -9,10 +14,14 @@ from app.api import deps
 from app.utils import generate_license_text
 import uuid as uuid_pkg
 from fastapi.templating import Jinja2Templates
+from pathlib import Path
+from starlette.background import BackgroundTask
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
+
+BASE_DIR = Path(__file__).resolve().parent
 
 
 @router.get("/", response_model=List[models.LicenseRead])
@@ -27,44 +36,61 @@ def read_licenses(
     all_licenses = crud.license.get_multi(db, skip=skip, limit=limit)
     return all_licenses
 
-@router.get("/{id}/generate", response_model=str)
-def generate_license(
+@router.get("/{id}/generate")
+async def generate_license(
+    request: Request,
     db: Session = Depends(deps.get_db),
     *,
     id: uuid_pkg.UUID,
+    file_type: str = Query("file_type", enum=["txt", "pdf"]),
 ) -> Any:
     """
     Generate license text for license with id "id".
     """
     license = crud.license.get(db, id=id)
 
-    LICENSE_NAME= f"{license.license}-{license.artifact}"
+    # we use the python approach even though it is less efficient for clarity
+    domain_restrictions = { 
+        domain.name : 
+        [
+            restriction.text for restriction in  domain.restrictions
+        ]
+        for domain in license.specifiedDomains
+    }
 
-    if license.researchOnly or license.license == "ResearchRAIL":
-        TARGET_OBJECT="Artifact(s) and Modifications of the Artifact(s)"
+    for additional_restriction in license.additionalRestrictions:
+        # put additional restriction in correct domain
+        # create if not exists
+        if additional_restriction.domain.name not in domain_restrictions:
+            domain_restrictions[additional_restriction.domain.name] = []
+        # append restriction
+        domain_restrictions[additional_restriction.domain.name].append(additional_restriction.text)
+
+    if license.license == "ResearchRAIL":
+        template_file = "ResearchUseRail.jinja"
+    elif license.license == "OpenRAIL":
+        template_file = "OpenRAIL-AMS.jinja"
+    elif license.license == "RAIL":
+        template_file = "RAIL-AMS.jinja"
     else:
-        TARGET_OBJECT="Artifact(s)"
-
-    ARTIFACT = []
-    if "A" in license.artifact:
-        ARTIFACT.append("Application")
-    if "M" in license.artifact:
-        ARTIFACT.append("Model")
-    if "S" in license.artifact:
-        ARTIFACT.append("Source Code")
-    ARTIFACT = ", ".join(ARTIFACT)
-    if len(ARTIFACT) == 0:
-        ARTIFACT = "============ERROR CHECK LICENSE=========="
-
-    return templates.TemplateResponse("license.jinja", {
-        "LICENSE_NAME": LICENSE_NAME,
-        "TARGET_OBJECT": TARGET_OBJECT,
-        "ARTIFACT": ARTIFACT,
-        "LICENSE_TYPE": license.license,
-        "RESTRICTIONS": license.additionalRestrictions,
-        "REUSE_DISTRIBUTION": license.researchOnly,
+        raise ValueError("Unknown license type")
+    
+    templated_response = templates.TemplateResponse(name=template_file, context={
+        "request": request,
+        "ARTIFACT": license.artifact,
+        "RESTRICTIONS":  domain_restrictions
         }
     )
+
+    if file_type == "txt":
+        return pypandoc.convert_text(templated_response.body, format='markdown+fancy_lists', to='plain+fancy_lists')
+    if file_type == "pdf":
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
+            pypandoc.convert_text(templated_response.body, format='markdown+fancy_lists', outputfile=output_file.name, to='pdf')
+            def cleanup():
+                os.remove(output_file.name)
+            return FileResponse(output_file.name, media_type="application/pdf", filename="license.pdf", background=BackgroundTask(cleanup))
+            
 
 @router.post("/", response_model=models.LicenseRead)
 def create_license(

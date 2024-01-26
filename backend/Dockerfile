@@ -1,5 +1,7 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10
 
+RUN apt-get update && apt-get install pandoc texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra -y
+
 WORKDIR /app/
 
 # Install Poetry
