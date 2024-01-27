@@ -75,6 +75,8 @@ async def generate_license(
     else:
         raise ValueError("Unknown license type")
     
+    print(license.artifact)
+    
     templated_response = templates.TemplateResponse(name=template_file, context={
         "request": request,
         "ARTIFACT": license.artifact,

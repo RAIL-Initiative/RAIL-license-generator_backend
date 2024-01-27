@@ -3,12 +3,15 @@
 ### **for Applications, Models, Source Code**
 
 Licensed Artifact (check all that apply):
-
-● Application (executable binary )
-
-● Model
-
-● Source Code (source code format)
+{% if 'A' in ARTIFACT %}
+- Application (executable binary )
+{% endif %}
+{% if 'M' in ARTIFACT -%}
+- Model
+{% endif %}
+{% if 'S' in ARTIFACT -%}
+- Source Code (source code format)
+{% endif %}
 
 **Section  I:  PREAMBLE**
 
@@ -102,32 +105,9 @@ END OF TERMS AND CONDITIONS
 
 You agree not to use the Source Code or its Derivatives in any of the following ways:
 
-1. Legal:
-
-(a) Outside of the Permitted Purpose;
-
-(b) In any way that violates any applicable national, federal, state, local or international law or regulation.
-
-2. Harm and Discrimination
-
-(a) For the purpose of exploiting, Harming or attempting to exploit or Harm minors in any way;
-
-(b) To generate or disseminate false information with the purpose of Harming others;
-
-(c) To generate or disseminate personal identifiable information that can be used to Harm an individual;
-
-(d) To defame, disparage or otherwise harass others;
-
-(e) For any use intended to or which has the effect of Harming individuals or groups based on online or offline social behavior or known or predicted personal or personality characteristics
-
-(f) To exploit any of the vulnerabilities of a specific group of persons based on their age, social, physical or mental characteristics, in order to materially distort the behavior of a person belonging to that group in a manner that causes or is likely to cause that person or another person Harm
-
-(g) For any use intended to or which has the effect of discriminating against individuals or groups based on legally protected characteristics or categories.
-
-3. Transparency
-
-(a) To generate or disseminate machine-generated information or content in any medium  without expressly and intelligibly disclaiming that it is machine-generated;
-
-(b) To impersonate or attempt to impersonate human  beings for purposes of deception;
-
-(c) For fully automated decision making that adversely impacts an individual’s legal rights or otherwise creates or modifies a binding, enforceable obligation.
+{% for domain,restriction_list in RESTRICTIONS.items() %}
+#. {{ domain }}
+{% for restriction in restriction_list %}
+     #. {{restriction}}
+{% endfor %}
+{% endfor %}
