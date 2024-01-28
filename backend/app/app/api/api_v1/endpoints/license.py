@@ -42,7 +42,7 @@ async def generate_license(
     db: Session = Depends(deps.get_db),
     *,
     id: uuid_pkg.UUID,
-    file_type: str = Query("file_type", enum=["txt", "pdf"]),
+    file_type: str = Query("file_type", enum=["txt", "pdf", "md", "rtf", "latex"]),
 ) -> Any:
     """
     Generate license text for license with id "id".
@@ -66,6 +66,13 @@ async def generate_license(
         # append restriction
         domain_restrictions[additional_restriction.domain.name].append(additional_restriction.text)
 
+    # deduplicate restrictions
+    for domain in domain_restrictions:
+        domain_restrictions[domain] = list(set(domain_restrictions[domain]))
+        # create index for each restriction with letters
+        domain_restrictions[domain] = [[chr(97 + index), restriction] for index, restriction in enumerate(domain_restrictions[domain])]
+
+
     if license.license == "ResearchRAIL":
         template_file = "ResearchUseRail.jinja"
     elif license.license == "OpenRAIL":
@@ -84,11 +91,17 @@ async def generate_license(
         }
     )
 
+    if file_type == "md":
+        return templated_response
     if file_type == "txt":
-        return pypandoc.convert_text(templated_response.body, format='markdown+fancy_lists', to='plain+fancy_lists')
+        return pypandoc.convert_text(templated_response.body, format='markdown', to='plain')
+    if file_type == "rtf":
+        return pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')
+    if file_type == "latex":
+        return pypandoc.convert_text(templated_response.body, format='markdown', to='latex')
     if file_type == "pdf":
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
-            pypandoc.convert_text(templated_response.body, format='markdown+fancy_lists', outputfile=output_file.name, to='pdf')
+            pypandoc.convert_text(templated_response.body, format='markdown', outputfile=output_file.name, to='pdf')
             def cleanup():
                 os.remove(output_file.name)
             return FileResponse(output_file.name, media_type="application/pdf", filename="license.pdf", background=BackgroundTask(cleanup))

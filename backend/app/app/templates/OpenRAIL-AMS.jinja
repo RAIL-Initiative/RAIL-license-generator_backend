@@ -107,8 +107,8 @@ END OF TERMS AND CONDITIONS
 You agree not to use the Model or its Derivatives in any of the following ways:
 
 {% for domain,restriction_list in RESTRICTIONS.items() %}
-#. {{ domain }}
-{% for restriction in restriction_list %}
-     #. {{restriction}}
+{{loop.index}}. {{ domain }}
+{% for (index, restriction) in restriction_list %}
+     ({{index}}) {{restriction}}
 {% endfor %}
 {% endfor %}
