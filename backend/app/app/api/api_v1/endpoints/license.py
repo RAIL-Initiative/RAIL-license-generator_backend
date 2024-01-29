@@ -4,7 +4,7 @@ import tempfile
 from typing import Any, List, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 import pypandoc
 from sqlalchemy.orm import Session
 from sqlmodel import select
@@ -42,7 +42,7 @@ async def generate_license(
     db: Session = Depends(deps.get_db),
     *,
     id: uuid_pkg.UUID,
-    file_type: str = Query("file_type", enum=["txt", "pdf", "md", "rtf", "latex"]),
+    media_type: str = Query("media_type", enum=["text/plain", "application/pdf", "text/markdown", "text/rtf", "text/latex"]),
 ) -> Any:
     """
     Generate license text for license with id "id".
@@ -90,16 +90,16 @@ async def generate_license(
         "RESTRICTIONS":  domain_restrictions
         }
     )
-
-    if file_type == "md":
+    
+    if media_type == "text/markdown":
         return templated_response
-    if file_type == "txt":
-        return pypandoc.convert_text(templated_response.body, format='markdown', to='plain')
-    if file_type == "rtf":
-        return pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')
-    if file_type == "latex":
-        return pypandoc.convert_text(templated_response.body, format='markdown', to='latex')
-    if file_type == "pdf":
+    if media_type == "text/plain":
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": "attachment; filename=license.txt"})
+    if  media_type == "text/rtf":
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": "attachment; filename=license.rtf"})
+    if media_type == "text/latex":
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": "attachment; filename=license.tex"})
+    if media_type == "application/pdf":
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
             pypandoc.convert_text(templated_response.body, format='markdown', outputfile=output_file.name, to='pdf')
             def cleanup():
