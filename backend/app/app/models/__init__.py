@@ -4,6 +4,8 @@ from .license_domain import *  # noqa
 from .license_restriction import *  # noqa
 from .license_source import *  # noqa
 from .link_tables import *  # noqa
+from .token import *  # noqa
+from .msg import *  # noqa
 
 def get_subclasses(cls):
     for subclass in cls.__subclasses__():

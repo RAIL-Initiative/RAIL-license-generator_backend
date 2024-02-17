@@ -18,10 +18,13 @@ def init() -> None:
 
 def main() -> None:
     logger.info("Creating initial data")
-    with Session() as db:
-        # check if atleast one user exists
-        if not db.query(User).first():
-            init()
+    try:
+        with Session() as db:
+            # check if atleast one user exists
+            if not db.query(User).first():
+                init()
+    except Exception as e:
+        logger.error(e)
     logger.info("Initial data created")
 
 

@@ -1,17 +1,11 @@
-**OpenRAIL ({{ ARTIFACT|join("/") }})**
+**OpenRAIL ({{ SHORT_ARTIFACT_NAME }})**
 
 **For Applications, Models, and Source Code**
 
 Licensed Artifact(s):
-{% if 'A' in ARTIFACT %}
-- Application (executable binary )
-{% endif %}
-{% if 'M' in ARTIFACT -%}
-- Model
-{% endif %}
-{% if 'S' in ARTIFACT -%}
-- Source Code (source code format)
-{% endif %}
+{% for artifact in ARTIFACTS %}
+     - {{artifact}}
+{% endfor %}
 
 NOTE: The primary difference between a RAIL and OpenRAIL license is that the RAIL license does not require the licensee to have royalty-free use of the relevant artifact(s), nor does the RAIL license necessarily permit modifications to the artifact(s). Both RAIL and OpenRAIL licenses include use restrictions prohibiting certain uses of the licensed artifact(s).
 

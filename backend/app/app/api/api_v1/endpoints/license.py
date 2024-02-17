@@ -1,9 +1,9 @@
-import io
+from enum import Enum
 import os
 import tempfile
-from typing import Any, List, Union
+from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
 import pypandoc
 from sqlalchemy.orm import Session
@@ -22,6 +22,13 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 BASE_DIR = Path(__file__).resolve().parent
+
+class MediaType(str, Enum):
+    plain = "text/plain"
+    latex = "text/latex"
+    markdown = "text/markdown"
+    rtf = "text/rtf"
+
 
 
 @router.get("/", response_model=List[models.LicenseRead])
@@ -42,7 +49,8 @@ async def generate_license(
     db: Session = Depends(deps.get_db),
     *,
     id: uuid_pkg.UUID,
-    media_type: str = Query("media_type", enum=["text/plain", "application/pdf", "text/markdown", "text/rtf", "text/latex"]),
+    license_name: str,
+    media_type: MediaType = "text/markdown",
 ) -> Any:
     """
     Generate license text for license with id "id".
@@ -72,6 +80,16 @@ async def generate_license(
         # create index for each restriction with letters
         domain_restrictions[domain] = [[chr(97 + index), restriction] for index, restriction in enumerate(domain_restrictions[domain])]
 
+    # construct array of licensed artifacts
+    artifacts = []
+    if license.application:
+        artifacts.append("Application")
+    if license.model:
+        artifacts.append("Model")
+    if license.sourcecode:
+        artifacts.append("Source Code")
+
+    short_artifact_name = "/".join([artifact[0] for artifact in artifacts])
 
     if license.license == "ResearchRAIL":
         template_file = "ResearchUseRail.jinja"
@@ -82,23 +100,25 @@ async def generate_license(
     else:
         raise ValueError("Unknown license type")
     
-    print(license.artifact)
-    
+    print(artifacts)
+    print(short_artifact_name)
+        
     templated_response = templates.TemplateResponse(name=template_file, context={
         "request": request,
-        "ARTIFACT": license.artifact,
+        "ARTIFACTS": artifacts,
+        "SHORT_ARTIFACT_NAME": short_artifact_name,
         "RESTRICTIONS":  domain_restrictions
         }
     )
     
     if media_type == "text/markdown":
-        return templated_response
+        return StreamingResponse(iter(templated_response.body.decode("utf-8")), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
     if media_type == "text/plain":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": "attachment; filename=license.txt"})
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
     if  media_type == "text/rtf":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": "attachment; filename=license.rtf"})
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
     if media_type == "text/latex":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": "attachment; filename=license.tex"})
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
     if media_type == "application/pdf":
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
             pypandoc.convert_text(templated_response.body, format='markdown', outputfile=output_file.name, to='pdf')

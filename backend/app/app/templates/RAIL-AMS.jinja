@@ -1,17 +1,11 @@
-### **RESEARCH-ONLY RAIL ({{ ARTIFACT|join("/") }})**
+### **RESEARCH-ONLY RAIL ({{ SHORT_ARTIFACT_NAME }})**
 
 ### **for Applications, Models, Source Code**
 
 Licensed Artifact(s):
-{% if 'A' in ARTIFACT %}
-- Application (executable binary )
-{% endif %}
-{% if 'M' in ARTIFACT -%}
-- Model
-{% endif %}
-{% if 'S' in ARTIFACT -%}
-- Source Code (source code format)
-{% endif %}
+{% for artifact in ARTIFACTS %}
+     - {{artifact}}
+{% endfor %}
 
 **Section  I:  PREAMBLE**
 

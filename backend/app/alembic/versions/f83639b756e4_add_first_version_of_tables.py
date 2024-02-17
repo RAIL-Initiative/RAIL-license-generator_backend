@@ -1,8 +1,8 @@
-"""Added first draft of tables
+"""Add first version of tables
 
-Revision ID: a1c1bbd0162b
+Revision ID: f83639b756e4
 Revises: d4867f3a4c0a
-Create Date: 2023-11-21 12:51:53.553423
+Create Date: 2024-02-17 18:25:59.810162
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision = 'a1c1bbd0162b'
+revision = 'f83639b756e4'
 down_revision = 'd4867f3a4c0a'
 branch_labels = None
 depends_on = None
@@ -22,14 +22,11 @@ def upgrade():
     op.create_table('license',
     sa.Column('timestamp', sa.DateTime(timezone=True), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('artifact', sa.String(), nullable=False),
     sa.Column('license', sa.String(), nullable=False),
     sa.Column('data', sa.Boolean(), nullable=False),
     sa.Column('application', sa.Boolean(), nullable=False),
     sa.Column('model', sa.Boolean(), nullable=False),
     sa.Column('sourcecode', sa.Boolean(), nullable=False),
-    sa.Column('derivatives', sa.Boolean(), nullable=False),
-    sa.Column('researchOnly', sa.Boolean(), nullable=False),
     sa.Column('id', sqlmodel.sql.sqltypes.GUID(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
