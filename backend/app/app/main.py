@@ -1,3 +1,4 @@
+import socket
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -25,6 +26,7 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 app.add_middleware(GZipMiddleware)
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="proxy")
+proxy_ip = socket.gethostbyname("proxy")
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=proxy_ip)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
