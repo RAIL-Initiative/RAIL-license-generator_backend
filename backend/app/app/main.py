@@ -26,7 +26,6 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 app.add_middleware(GZipMiddleware)
-proxy_ip = socket.gethostbyname("proxy")
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=proxy_ip)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=settings.BACKEND_TRUSTED_PROXY_IPS)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
