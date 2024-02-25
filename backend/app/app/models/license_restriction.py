@@ -25,4 +25,4 @@ class LicenseRestriction(LicenseRestrictionBase, table=True):
     source: Optional["LicenseSource"] = Relationship(back_populates="restrictions")
     domain_id: int = Field(foreign_key="licensedomain.id")
     domain: Optional["LicenseDomain"] = Relationship(back_populates="restrictions")
-    licenses_with_additionalRestrictions: list["License"] = Relationship(back_populates='additionalRestrictions', link_model=License_LicenseRestriction_Link)
+    licenses_with_restrictions: list["License"] = Relationship(back_populates='restrictions', link_model=License_LicenseRestriction_Link)

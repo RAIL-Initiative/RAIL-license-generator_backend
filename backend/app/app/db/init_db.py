@@ -42,7 +42,7 @@ def init_db(db: Session) -> None:
     for i, restriction in data['Restriction'].items():
         source_id = crud.license_source.get_by_name(db, name=data['Source'][str(i)]).id
         domain_id = crud.license_domain.get_by_name(db, name=data['Domain'][str(i)]).id
-        crud.license_restriction.create(db, obj_in=models.LicenseRestrictionBase(
+        crud.license_restriction.create(db, obj_in=models.LicenseRestriction(
             text=restriction,
             approved=True,
             source_id=source_id,

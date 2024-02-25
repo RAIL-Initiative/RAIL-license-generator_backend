@@ -16,14 +16,12 @@ class LicenseBase(SQLModel):
     timestamp: datetime.datetime = sqlmodel.Field(nullable=False, sa_type=sqlmodel.DateTime(timezone=True))
     name: str = Field(nullable=False)
     license: Literal["OpenRAIL", "ResearchRAIL", "RAIL"] = Field(nullable=False, sa_type=String)
-    data: bool = Field(default=False)
     application: bool = Field(default=False)
     model: bool = Field(default=False)
     sourcecode: bool = Field(default=False)
 
 class LicenseCreate(LicenseBase):
-    specifiedDomain_ids: Optional[list[int]] = []
-    additionalRestriction_ids: Optional[list[int]] = []
+    restriction_ids: Optional[list[int]] = []
     
 class License(LicenseBase, table=True):
     id: uuid_pkg.UUID = Field(
@@ -32,10 +30,8 @@ class License(LicenseBase, table=True):
         index=True,
         nullable=False,
     )
-    specifiedDomains: list["LicenseDomain"] = Relationship(back_populates='licenses', link_model=License_LicenseDomain_Link)
-    additionalRestrictions: list["LicenseRestriction"] = Relationship(back_populates='licenses_with_additionalRestrictions', link_model=License_LicenseRestriction_Link)
+    restrictions: list["LicenseRestriction"] = Relationship(back_populates='licenses_with_restrictions', link_model=License_LicenseRestriction_Link)
 
 class LicenseRead(LicenseBase):
     id: uuid_pkg.UUID
-    specifiedDomains: list["LicenseDomainRead"]
-    additionalRestrictions: list["LicenseRestriction"]
+    restrictions: list["LicenseRestriction"]

@@ -14,7 +14,6 @@ class LicenseDomainBase(SQLModel):
 class LicenseDomain(LicenseDomainBase, table=True):
     id: int = Field(default=None, primary_key=True)
     restrictions: list["LicenseRestriction"] = Relationship(back_populates="domain")
-    licenses: list["License"] = Relationship(back_populates='specifiedDomains', link_model=License_LicenseDomain_Link)
 
 class LicenseDomainRead(LicenseDomainBase):
     id: int

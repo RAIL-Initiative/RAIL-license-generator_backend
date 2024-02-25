@@ -22,6 +22,7 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 sqlmodel = "^0.0.11"
 uvicorn = "^0.24.0.post1"
 pypandoc = "^1.12"
+slowapi = "^0.1.9"
 
 [tool.poetry.dev-dependencies]
 mypy = "^1.8.0"

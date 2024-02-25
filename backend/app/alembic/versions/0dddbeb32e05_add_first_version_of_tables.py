@@ -1,8 +1,8 @@
 """Add first version of tables
 
-Revision ID: f83639b756e4
+Revision ID: 0dddbeb32e05
 Revises: d4867f3a4c0a
-Create Date: 2024-02-17 18:25:59.810162
+Create Date: 2024-02-25 18:06:35.670842
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision = 'f83639b756e4'
+revision = '0dddbeb32e05'
 down_revision = 'd4867f3a4c0a'
 branch_labels = None
 depends_on = None
@@ -23,7 +23,6 @@ def upgrade():
     sa.Column('timestamp', sa.DateTime(timezone=True), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('license', sa.String(), nullable=False),
-    sa.Column('data', sa.Boolean(), nullable=False),
     sa.Column('application', sa.Boolean(), nullable=False),
     sa.Column('model', sa.Boolean(), nullable=False),
     sa.Column('sourcecode', sa.Boolean(), nullable=False),

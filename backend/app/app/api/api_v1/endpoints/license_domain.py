@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[models.LicenseDomain])
-def read_items(
+def read_domains(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
@@ -23,7 +23,7 @@ def read_items(
 
 
 @router.post("/", response_model=models.LicenseDomain)
-def create_item(
+def create_domain(
     *,
     db: Session = Depends(deps.get_db),
     item_in: models.LicenseDomainBase,
@@ -37,7 +37,7 @@ def create_item(
 
 
 @router.put("/{id}", response_model=models.LicenseDomainBase)
-def update_item(
+def update_domain(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
@@ -57,7 +57,7 @@ def update_item(
 
 
 @router.delete("/{id}", response_model=models.LicenseDomain)
-def delete_item(
+def delete_domain(
     *,
     db: Session = Depends(deps.get_db),
     id: int,

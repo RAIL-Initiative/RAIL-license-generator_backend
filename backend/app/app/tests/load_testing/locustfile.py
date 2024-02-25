@@ -25,8 +25,7 @@ class QuickstartUser(HttpUser):
             "sourcecode": False,
             "derivatives": True,
             "researchOnly": False,
-            "specifiedDomain_ids": [],
-            "additionalRestriction_ids": []
+            "restriction_ids": []
             }
         )
         if r.status_code == 200:

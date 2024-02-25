@@ -7,15 +7,16 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
 import pypandoc
 from sqlalchemy.orm import Session
-from sqlmodel import select
-
-from app import crud, models
-from app.api import deps
-from app.utils import generate_license_text
 import uuid as uuid_pkg
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from starlette.background import BackgroundTask
+
+from app import crud, models
+from app.api import deps
+from app.core.rate_limiting import limiter
+
+
 
 router = APIRouter()
 
@@ -36,6 +37,7 @@ def read_licenses(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
+    user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
     Retrieve licenses.
@@ -44,12 +46,12 @@ def read_licenses(
     return all_licenses
 
 @router.get("/{id}/generate")
+@limiter.limit("5/minute")
 async def generate_license(
     request: Request,
     db: Session = Depends(deps.get_db),
     *,
     id: uuid_pkg.UUID,
-    license_name: str,
     media_type: MediaType = "text/markdown",
 ) -> Any:
     """
@@ -57,28 +59,19 @@ async def generate_license(
     """
     license = crud.license.get(db, id=id)
 
-    # we use the python approach even though it is less efficient for clarity
-    domain_restrictions = { 
-        domain.name : 
-        [
-            restriction.text for restriction in  domain.restrictions
-        ]
-        for domain in license.specifiedDomains
-    }
-
-    for additional_restriction in license.additionalRestrictions:
+    restrictions = {}
+    for restriction in license.restrictions:
         # put additional restriction in correct domain
         # create if not exists
-        if additional_restriction.domain.name not in domain_restrictions:
-            domain_restrictions[additional_restriction.domain.name] = []
+        if restriction.domain.name not in restrictions:
+            restrictions[restriction.domain.name] = []
         # append restriction
-        domain_restrictions[additional_restriction.domain.name].append(additional_restriction.text)
-
-    # deduplicate restrictions
-    for domain in domain_restrictions:
-        domain_restrictions[domain] = list(set(domain_restrictions[domain]))
+        restrictions[restriction.domain.name].append(restriction.text)
+    
+     # deduplicate restrictions
+    for domain in restrictions:
         # create index for each restriction with letters
-        domain_restrictions[domain] = [[chr(97 + index), restriction] for index, restriction in enumerate(domain_restrictions[domain])]
+        restrictions[domain] = [[chr(97 + index), restriction] for index, restriction in enumerate(restrictions[domain])]
 
     # construct array of licensed artifacts
     artifacts = []
@@ -99,26 +92,24 @@ async def generate_license(
         template_file = "RAIL-AMS.jinja"
     else:
         raise ValueError("Unknown license type")
-    
-    print(artifacts)
-    print(short_artifact_name)
         
     templated_response = templates.TemplateResponse(name=template_file, context={
         "request": request,
         "ARTIFACTS": artifacts,
         "SHORT_ARTIFACT_NAME": short_artifact_name,
-        "RESTRICTIONS":  domain_restrictions
+        "LICENSE_NAME": license.name,
+        "RESTRICTIONS":  restrictions
         }
     )
     
     if media_type == "text/markdown":
-        return StreamingResponse(iter(templated_response.body.decode("utf-8")), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
+        return StreamingResponse(iter(templated_response.body.decode("utf-8")), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.md"})
     if media_type == "text/plain":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.txt"})
     if  media_type == "text/rtf":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.rtf"})
     if media_type == "text/latex":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license_name}"})
+        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.latex"})
     if media_type == "application/pdf":
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
             pypandoc.convert_text(templated_response.body, format='markdown', outputfile=output_file.name, to='pdf')
@@ -128,7 +119,9 @@ async def generate_license(
             
 
 @router.post("/", response_model=models.LicenseRead)
+@limiter.limit("1/minute")
 def create_license(
+    request: Request,
     *,
     db: Session = Depends(deps.get_db),
     license_in: models.LicenseCreate,
@@ -136,16 +129,13 @@ def create_license(
     """
     Create new license .
     """
-    # get all domains with license_in.specifiedDomains
-    specified_domains = [crud.license_domain.get(db=db, id=domain_id) for domain_id in license_in.specifiedDomain_ids]
     # get all restrictions with license_in.additionalRestrictions
-    additional_restrictions = [crud.license_restriction.get(db=db, id=restriction_id) for restriction_id in license_in.additionalRestriction_ids]
+    restrictions = [crud.license_restriction.get(db=db, id=restriction_id) for restriction_id in license_in.restriction_ids]
+    if None in restrictions:
+        raise HTTPException(status_code=404, detail="One or more restrictions not found. Please check that you have the correct restriction ids.")
     # filter Nones
-    specified_domains = [domain for domain in specified_domains if domain]
-    additional_restrictions = [restriction for restriction in additional_restrictions if restriction]
     new_license = crud.license.create(db=db, obj_in=license_in)
-    new_license.specifiedDomains = specified_domains
-    new_license.additionalRestrictions = additional_restrictions
+    new_license.restrictions = restrictions
     db.add(new_license)
     db.commit()
 

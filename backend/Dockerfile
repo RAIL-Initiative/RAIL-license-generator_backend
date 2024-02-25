@@ -1,6 +1,10 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
 
-RUN apt-get update && apt-get install pandoc -y
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    # Required for poetry
+    pandoc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 # install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra if you want latex support
 
 WORKDIR /app/

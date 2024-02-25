@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[models.LicenseRestriction])
-def read_items(
+def read_restrictions(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
@@ -18,12 +18,12 @@ def read_items(
     """
     Retrieve license restrictions.
     """
-    all_license_restrictions = crud.license_restriction.get_multi(db, skip=skip, limit=limit)
+    all_license_restrictions = crud.license_restriction.get_multi(db, skip=skip, limit=limit, filter={'approved': True})
     return all_license_restrictions
 
 
 @router.post("/", response_model=models.LicenseRestriction)
-def create_item(
+def create_restriction(
     *,
     db: Session = Depends(deps.get_db),
     item_in: models.LicenseRestrictionBase,
@@ -37,7 +37,7 @@ def create_item(
 
 
 @router.put("/{id}", response_model=models.LicenseRestrictionBase)
-def update_item(
+def update_restriction(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
@@ -45,7 +45,7 @@ def update_item(
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Update an item.
+    Update a license restriction.
     """
     license_restriction = crud.license_restriction.get(db=db, id=id)
     if not license_restriction:
@@ -57,14 +57,14 @@ def update_item(
 
 
 @router.delete("/{id}", response_model=models.LicenseRestriction)
-def delete_item(
+def delete_restriction(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Delete an item.
+    Delete a license restriction.
     """
     license_restriction = crud.license_restriction.get(db=db, id=id)
     if not license_restriction:

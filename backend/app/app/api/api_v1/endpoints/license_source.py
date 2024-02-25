@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[models.LicenseSource])
-def read_items(
+def read_sources(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
@@ -23,7 +23,7 @@ def read_items(
 
 
 @router.post("/", response_model=models.LicenseSource)
-def create_item(
+def create_source(
     *,
     db: Session = Depends(deps.get_db),
     item_in: models.LicenseSourceBase,
@@ -37,7 +37,7 @@ def create_item(
 
 
 @router.put("/{id}", response_model=models.LicenseSourceBase)
-def update_item(
+def update_source(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
@@ -45,7 +45,7 @@ def update_item(
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Update an item.
+    Update a license source.
     """
     license_source = crud.license_source.get(db=db, id=id)
     if not license_source:
@@ -57,14 +57,14 @@ def update_item(
 
 
 @router.delete("/{id}", response_model=models.LicenseSource)
-def delete_item(
+def delete_source(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Delete an item.
+    Delete a license source.
     """
     license_source = crud.license_source.get(db=db, id=id)
     if not license_source:
