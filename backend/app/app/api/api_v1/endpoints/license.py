@@ -119,7 +119,7 @@ async def generate_license(
             
 
 @router.post("/", response_model=models.LicenseRead)
-@limiter.limit("5/minute")
+@limiter.limit("1/minute")
 def create_license(
     request: Request,
     *,
@@ -129,7 +129,6 @@ def create_license(
     """
     Create new license .
     """
-    print(request.client.host)
     # get all restrictions with license_in.additionalRestrictions
     restrictions = [crud.license_restriction.get(db=db, id=restriction_id) for restriction_id in license_in.restriction_ids]
     if None in restrictions:
