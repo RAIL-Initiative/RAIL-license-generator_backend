@@ -55,8 +55,8 @@
     },
     "Source":
     {
-        "0": "RAIL (IEEE)",
-        "1": "RAIL (IEEE)",
+        "0": "RAIL Initiative",
+        "1": "RAIL Initiative",
         "10": "Stable Diffusion",
         "11": "Llama2",
         "12": "Llama2",
@@ -67,17 +67,17 @@
         "17": "Big Code",
         "18": "AI Pubs",
         "19": "AI2 Impact",
-        "2": "RAIL (IEEE)",
+        "2": "RAIL Initiative",
         "20": "Big Code",
         "21": "Llama2",
         "22": "Big Code",
         "23": "LLama2",
-        "3": "RAIL (IEEE)",
-        "4": "RAIL (IEEE)",
-        "5": "RAIL (IEEE)",
-        "6": "RAIL (IEEE)",
-        "7": "RAIL (IEEE)",
-        "8": "RAIL (IEEE)",
-        "9": "RAIL (IEEE)"
+        "3": "RAIL Initiative",
+        "4": "RAIL Initiative",
+        "5": "RAIL Initiative",
+        "6": "RAIL Initiative",
+        "7": "RAIL Initiative",
+        "8": "RAIL Initiative",
+        "9": "RAIL Initiative"
     }
 }
