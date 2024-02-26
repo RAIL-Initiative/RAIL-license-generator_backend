@@ -688,8 +688,6 @@ Automatic Alternative Docs (ReDoc): https://localhost/redoc
 
 PGAdmin: http://localhost:5050
 
-Flower: http://localhost:5555
-
 Traefik UI: http://localhost:8090
 
 ### Development with Docker Toolbox URLs
@@ -703,8 +701,6 @@ Automatic Interactive Docs (Swagger UI): https://local.dockertoolbox.tiangolo.co
 Automatic Alternative Docs (ReDoc): https://local.dockertoolbox.tiangolo.com/redoc
 
 PGAdmin: http://local.dockertoolbox.tiangolo.com:5050
-
-Flower: http://local.dockertoolbox.tiangolo.com:5555
 
 Traefik UI: http://local.dockertoolbox.tiangolo.com:8090
 
@@ -720,8 +716,6 @@ Automatic Alternative Docs (ReDoc): https://dev.api.generator.licenses.ai/redoc
 
 PGAdmin: http://dev.api.generator.licenses.ai:5050
 
-Flower: http://dev.api.generator.licenses.ai:5555
-
 Traefik UI: http://dev.api.generator.licenses.ai:8090
 
 ### Development in localhost with a custom domain URLs
@@ -735,8 +729,6 @@ Automatic Interactive Docs (Swagger UI): https://localhost.tiangolo.com/docs
 Automatic Alternative Docs (ReDoc): https://localhost.tiangolo.com/redoc
 
 PGAdmin: http://localhost.tiangolo.com:5050
-
-Flower: http://localhost.tiangolo.com:5555
 
 Traefik UI: http://localhost.tiangolo.com:8090
 
