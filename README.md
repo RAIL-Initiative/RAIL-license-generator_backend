@@ -7,10 +7,6 @@ The backend for a web-based application designed to help a user generate a Respo
 * [Docker Compose](https://docs.docker.com/compose/install/).
 * [Poetry](https://python-poetry.org/) for Python package and environment management.
 
-## Frontend Requirements
-
-* Node.js (with `npm`).
-
 ## Backend local development
 
 * Start the stack with Docker Compose:
@@ -30,8 +26,6 @@ Automatic interactive documentation with Swagger UI (from the OpenAPI backend): 
 Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
 
 PGAdmin, PostgreSQL web administration: http://localhost:5050
-
-Flower, administration of Celery tasks: http://localhost:5555
 
 Traefik UI, to see how the routes are being handled by the proxy: http://localhost:8090
 
@@ -274,6 +268,11 @@ $ alembic upgrade head
 
 If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./backend/app/alembic/versions/`. And then create a first migration as described above.
 
+For a quick auto generation of the schema changes, you can directly execute:
+```console
+$ docker compose exec backend alembic revision  --autogenerate -m <message>
+```
+
 ### Development with Docker Toolbox
 
 If you are using **Docker Toolbox** in Windows or macOS instead of **Docker for Windows** or **Docker for Mac**, Docker will be running in a VirtualBox Virtual Machine, and it will have a local IP different than `127.0.0.1`, which is the IP address for `localhost` in your machine.
@@ -308,36 +307,36 @@ Check all the corresponding available URLs in the section at the end.
 
 If you are running Docker in an IP address different than `127.0.0.1` (`localhost`) and `192.168.99.100` (the default of Docker Toolbox), you will need to perform some additional steps. That will be the case if you are running a custom Virtual Machine, a secondary Docker Toolbox or your Docker is located in a different machine in your network.
 
-In that case, you will need to use a fake local domain (`dev.rail_license_generator_backend.com`) and make your computer think that the domain is is served by the custom IP (e.g. `192.168.99.150`).
+In that case, you will need to use a fake local domain (`dev.api.generator.licenses.ai`) and make your computer think that the domain is is served by the custom IP (e.g. `192.168.99.150`).
 
-If you used the default CORS enabled domains, `dev.rail_license_generator_backend.com` was configured to be allowed. If you want a custom one, you need to add it to the list in the variable `BACKEND_CORS_ORIGINS` in the `.env` file.
+If you used the default CORS enabled domains, `dev.api.generator.licenses.ai` was configured to be allowed. If you want a custom one, you need to add it to the list in the variable `BACKEND_CORS_ORIGINS` in the `.env` file.
 
 * Open your `hosts` file with administrative privileges using a text editor:
   * **Note for Windows**: If you are in Windows, open the main Windows menu, search for "notepad", right click on it, and select the option "open as Administrator" or similar. Then click the "File" menu, "Open file", go to the directory `c:\Windows\System32\Drivers\etc\`, select the option to show "All files" instead of only "Text (.txt) files", and open the `hosts` file.
   * **Note for Mac and Linux**: Your `hosts` file is probably located at `/etc/hosts`, you can edit it in a terminal running `sudo nano /etc/hosts`.
 
-* Additional to the contents it might have, add a new line with the custom IP (e.g. `192.168.99.150`) a space character, and your fake local domain: `dev.rail_license_generator_backend.com`.
+* Additional to the contents it might have, add a new line with the custom IP (e.g. `192.168.99.150`) a space character, and your fake local domain: `dev.api.generator.licenses.ai`.
 
 The new line might look like:
 
 ```
-192.168.99.100    dev.rail_license_generator_backend.com
+192.168.99.100    dev.api.generator.licenses.ai
 ```
 
 * Save the file.
   * **Note for Windows**: Make sure you save the file as "All files", without an extension of `.txt`. By default, Windows tries to add the extension. Make sure the file is saved as is, without extension.
 
-...that will make your computer think that the fake local domain is served by that custom IP, and when you open that URL in your browser, it will talk directly to your locally running server when it is asked to go to `dev.rail_license_generator_backend.com` and think that it is a remote server while it is actually running in your computer.
+...that will make your computer think that the fake local domain is served by that custom IP, and when you open that URL in your browser, it will talk directly to your locally running server when it is asked to go to `dev.api.generator.licenses.ai` and think that it is a remote server while it is actually running in your computer.
 
-To configure it in your stack, follow the section **Change the development "domain"** below, using the domain `dev.rail_license_generator_backend.com`.
+To configure it in your stack, follow the section **Change the development "domain"** below, using the domain `dev.api.generator.licenses.ai`.
 
-After performing those steps you should be able to open: http://dev.rail_license_generator_backend.com and it will be server by your stack in `localhost`.
+After performing those steps you should be able to open: http://dev.api.generator.licenses.ai and it will be server by your stack in `localhost`.
 
 Check all the corresponding available URLs in the section at the end.
 
 ### Change the development "domain"
 
-If you need to use your local stack with a different domain than `localhost`, you need to make sure the domain you use points to the IP where your stack is set up. See the different ways to achieve that in the sections above (i.e. using Docker Toolbox with `local.dockertoolbox.tiangolo.com`, using `localhost.tiangolo.com` or using `dev.rail_license_generator_backend.com`).
+If you need to use your local stack with a different domain than `localhost`, you need to make sure the domain you use points to the IP where your stack is set up. See the different ways to achieve that in the sections above (i.e. using Docker Toolbox with `local.dockertoolbox.tiangolo.com`, using `localhost.tiangolo.com` or using `dev.api.generator.licenses.ai`).
 
 To simplify your Docker Compose setup, for example, so that the API docs (Swagger UI) knows where is your API, you should let it know you are using that domain for development. You will need to edit 1 line in 2 files.
 
@@ -377,59 +376,6 @@ docker-compose up -d
 
 and check all the corresponding available URLs in the section at the end.
 
-## Frontend development
-
-* Enter the `frontend` directory, install the NPM packages and start the live server using the `npm` scripts:
-
-```bash
-cd frontend
-npm install
-npm run serve
-```
-
-Then open your browser at http://localhost:8080
-
-Notice that this live server is not running inside Docker, it is for local development, and that is the recommended workflow. Once you are happy with your frontend, you can build the frontend Docker image and start it, to test it in a production-like environment. But compiling the image at every change will not be as productive as running the local development server with live reload.
-
-Check the file `package.json` to see other available options.
-
-If you have Vue CLI installed, you can also run `vue ui` to control, configure, serve, and analyze your application using a nice local web user interface.
-
-If you are only developing the frontend (e.g. other team members are developing the backend) and there is a staging environment already deployed, you can make your local development code use that staging API instead of a full local Docker Compose stack.
-
-To do that, modify the file `./frontend/.env`, there's a section with:
-
-```
-VUE_APP_ENV=development
-# VUE_APP_ENV=staging
-```
-
-* Switch the comment, to:
-
-```
-# VUE_APP_ENV=development
-VUE_APP_ENV=staging
-```
-
-### Removing the frontend
-
-If you are developing an API-only app and want to remove the frontend, you can do it easily:
-
-* Remove the `./frontend` directory.
-* In the `docker-compose.yml` file, remove the whole service / section `frontend`.
-* In the `docker-compose.override.yml` file, remove the whole service / section `frontend`.
-
-Done, you have a frontend-less (api-only) app. 🔥 🚀
-
----
-
-If you want, you can also remove the `FRONTEND` environment variables from:
-
-* `.env`
-* `.gitlab-ci.yml`
-* `./scripts/*.sh`
-
-But it would be only to clean them up, leaving them won't really have any effect either way.
 
 ## Deployment
 
@@ -476,7 +422,7 @@ Then you need to have those constraints in your `docker-compose.yml` file for th
 To be able to use different environments, like `prod` and `stag`, you should pass the name of the stack as an environment variable. Like:
 
 ```bash
-STACK_NAME=stag-rail_license_generator_backend-com sh ./scripts/deploy.sh
+STACK_NAME=stag-api_generator_licenses_ai sh ./scripts/deploy.sh
 ```
 
 To use and expand that environment variable inside the `docker-compose.yml` files you can add the constraints to the services like:
@@ -504,7 +450,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.labels.rail_license_generator_backend-com.app-db-data == true
+          - node.labels.api_generator_licenses_ai.app-db-data == true
 ```
 
 **Note**: The `${STACK_NAME?Variable not set}` means "use the environment variable `STACK_NAME`, but if it is not set, show an error `Variable not set`".
@@ -556,13 +502,13 @@ then chose a node from the list. For example, `dog.example.com`.
 * Add the label to that node. Use as label the name of the stack you are deploying followed by a dot (`.`) followed by the named volume, and as value, just `true`, e.g.:
 
 ```bash
-docker node update --label-add rail_license_generator_backend-com.app-db-data=true dog.example.com
+docker node update --label-add api_generator_licenses_ai.app-db-data=true dog.example.com
 ```
 
 * Then you need to do the same for each stack version you have. For example, for staging you could do:
 
 ```bash
-docker node update --label-add stag-rail_license_generator_backend-com.app-db-data=true cat.example.com
+docker node update --label-add stag-api_generator_licenses_ai.app-db-data=true cat.example.com
 ```
 
 ### Deploy to a Docker Swarm mode cluster
@@ -606,16 +552,16 @@ TAG=prod FRONTEND_ENV=production bash ./scripts/build-push.sh
 3. **Deploy your stack**
 
 * Set these environment variables:
-  * `DOMAIN=rail_license_generator_backend.com`
-  * `TRAEFIK_TAG=rail_license_generator_backend.com`
-  * `STACK_NAME=rail_license_generator_backend-com`
+  * `DOMAIN=api.generator.licenses.ai`
+  * `TRAEFIK_TAG=api.generator.licenses.ai`
+  * `STACK_NAME=api_generator_licenses_ai`
   * `TAG=prod`
 * Use the provided `scripts/deploy.sh` file with those environment variables:
 
 ```bash
-DOMAIN=rail_license_generator_backend.com \
-TRAEFIK_TAG=rail_license_generator_backend.com \
-STACK_NAME=rail_license_generator_backend-com \
+DOMAIN=api.generator.licenses.ai \
+TRAEFIK_TAG=api.generator.licenses.ai \
+STACK_NAME=api_generator_licenses_ai \
 TAG=prod \
 bash ./scripts/deploy.sh
 ```
@@ -661,6 +607,8 @@ docker stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME?Varia
 
 ### Continuous Integration / Continuous Delivery
 
+#### Gitlab
+
 If you use GitLab CI, the included `.gitlab-ci.yml` can automatically deploy it. You may need to update it according to your GitLab configurations.
 
 If you use any other CI / CD provider, you can base your deployment from that `.gitlab-ci.yml` file, as all the actual script steps are performed in `bash` scripts that you can easily re-use.
@@ -671,6 +619,10 @@ GitLab CI is configured assuming 2 environments following GitLab flow:
 * `stag` (staging) from the `master` branch.
 
 If you need to add more environments, for example, you could imagine using a client-approved `preprod` branch, you can just copy the configurations in `.gitlab-ci.yml` for `stag` and rename the corresponding variables. The Docker Compose file and environment variables are configured to support as many environments as you need, so that you only need to modify `.gitlab-ci.yml` (or whichever CI system configuration you are using).
+
+#### Github
+
+The Github CI pipeline is a little simpler and only builds the main branch on every commit. If you want to deploy your stack from the Github Package Registry, you should therefore change the `TAG` to main while calling `deploy.sh`.
 
 ## Docker Compose files and env vars
 
@@ -702,41 +654,31 @@ These are the URLs that will be used and generated by the project.
 
 ### Production URLs
 
-Production URLs, from the branch `production`.
+Production URLs, from the branch `main`.
 
-Frontend: https://rail_license_generator_backend.com
+Backend: https://api.generator.licenses.ai/api/
 
-Backend: https://rail_license_generator_backend.com/api/
+Automatic Interactive Docs (Swagger UI): https://api.generator.licenses.ai/docs
 
-Automatic Interactive Docs (Swagger UI): https://rail_license_generator_backend.com/docs
+Automatic Alternative Docs (ReDoc): https://api.generator.licenses.ai/redoc
 
-Automatic Alternative Docs (ReDoc): https://rail_license_generator_backend.com/redoc
-
-PGAdmin: https://pgadmin.rail_license_generator_backend.com
-
-Flower: https://flower.rail_license_generator_backend.com
+PGAdmin: https://pgadmin.api.generator.licenses.ai
 
 ### Staging URLs
 
-Staging URLs, from the branch `master`.
+Coming soon.
 
-Frontend: https://stag.rail_license_generator_backend.com
+Backend: https://stag.api.generator.licenses.ai/api/
 
-Backend: https://stag.rail_license_generator_backend.com/api/
+Automatic Interactive Docs (Swagger UI): https://stag.api.generator.licenses.ai/docs
 
-Automatic Interactive Docs (Swagger UI): https://stag.rail_license_generator_backend.com/docs
+Automatic Alternative Docs (ReDoc): https://stag.api.generator.licenses.ai/redoc
 
-Automatic Alternative Docs (ReDoc): https://stag.rail_license_generator_backend.com/redoc
-
-PGAdmin: https://pgadmin.stag.rail_license_generator_backend.com
-
-Flower: https://flower.stag.rail_license_generator_backend.com
+PGAdmin: https://pgadmin.stag.api.generator.licenses.ai
 
 ### Development URLs
 
 Development URLs, for local development.
-
-Frontend: http://localhost
 
 Backend: http://localhost/api/
 
@@ -754,8 +696,6 @@ Traefik UI: http://localhost:8090
 
 Development URLs, for local development.
 
-Frontend: http://local.dockertoolbox.tiangolo.com
-
 Backend: http://local.dockertoolbox.tiangolo.com/api/
 
 Automatic Interactive Docs (Swagger UI): https://local.dockertoolbox.tiangolo.com/docs
@@ -772,25 +712,21 @@ Traefik UI: http://local.dockertoolbox.tiangolo.com:8090
 
 Development URLs, for local development.
 
-Frontend: http://dev.rail_license_generator_backend.com
+Backend: http://dev.api.generator.licenses.ai/api/
 
-Backend: http://dev.rail_license_generator_backend.com/api/
+Automatic Interactive Docs (Swagger UI): https://dev.api.generator.licenses.ai/docs
 
-Automatic Interactive Docs (Swagger UI): https://dev.rail_license_generator_backend.com/docs
+Automatic Alternative Docs (ReDoc): https://dev.api.generator.licenses.ai/redoc
 
-Automatic Alternative Docs (ReDoc): https://dev.rail_license_generator_backend.com/redoc
+PGAdmin: http://dev.api.generator.licenses.ai:5050
 
-PGAdmin: http://dev.rail_license_generator_backend.com:5050
+Flower: http://dev.api.generator.licenses.ai:5555
 
-Flower: http://dev.rail_license_generator_backend.com:5555
-
-Traefik UI: http://dev.rail_license_generator_backend.com:8090
+Traefik UI: http://dev.api.generator.licenses.ai:8090
 
 ### Development in localhost with a custom domain URLs
 
 Development URLs, for local development.
-
-Frontend: http://localhost.tiangolo.com
 
 Backend: http://localhost.tiangolo.com/api/
 
