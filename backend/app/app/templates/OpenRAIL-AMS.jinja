@@ -1,4 +1,4 @@
-### **{{ LICENSE_NAME }} OpenRAIL ({{ SHORT_ARTIFACT_NAME }})**
+### **{{ LICENSE_NAME }} OpenRAIL{% if SHORT_ARTIFACT_NAME is defined and SHORT_ARTIFACT_NAME %} ({{ SHORT_ARTIFACT_NAME }}){% endif %}**
 
 Licensed Artifact(s):
 {% for artifact in ARTIFACTS %}

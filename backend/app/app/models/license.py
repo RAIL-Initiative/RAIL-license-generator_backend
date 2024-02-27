@@ -19,6 +19,7 @@ class LicenseBase(SQLModel):
     application: bool = Field(default=False)
     model: bool = Field(default=False)
     sourcecode: bool = Field(default=False)
+    data: bool = Field(default=False)
 
 class LicenseCreate(LicenseBase):
     restriction_ids: Optional[list[int]] = []

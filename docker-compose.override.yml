@@ -44,6 +44,7 @@ services:
     environment:
       - JUPYTER=jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.custom_display_url=http://127.0.0.1:8888
       - SERVER_HOST=http://${DOMAIN?Variable not set}
+      - DEACTIVATE_RATE_LIMIT=true
     build:
       context: ./backend
       args:
