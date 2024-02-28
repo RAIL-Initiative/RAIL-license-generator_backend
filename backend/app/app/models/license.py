@@ -2,15 +2,13 @@ import datetime
 from typing import TYPE_CHECKING, Literal, Optional
 import uuid as uuid_pkg
 from sqlalchemy import String
-from pydantic import root_validator
-
+from pydantic import root_validator, validator
 from sqlmodel import Field, Relationship, SQLModel
 import sqlmodel
 
-from .link_tables import License_LicenseRestriction_Link, License_LicenseDomain_Link
+from .link_tables import License_LicenseRestriction_Link
 if TYPE_CHECKING:
     from .license_restriction import LicenseRestriction, License_LicenseRestriction_Link
-    from .license_domain import LicenseDomain, License_LicenseDomain_Link, LicenseDomainRead
 
 class LicenseBase(SQLModel):
     timestamp: datetime.datetime = sqlmodel.Field(nullable=False, sa_type=sqlmodel.DateTime(timezone=True))
@@ -21,8 +19,15 @@ class LicenseBase(SQLModel):
     sourcecode: bool = Field(default=False)
     data: bool = Field(default=False)
 
+    @root_validator
+    def check_passwords_match(cls, values):
+        if not (values.get('application') or values.get('model') or values.get('sourcecode') or values.get('data')):
+            raise ValueError('At least one artifact must be selected.')
+        return values
+
 class LicenseCreate(LicenseBase):
-    restriction_ids: Optional[list[int]] = []
+    # insert minimum list size
+    restriction_ids: list[int] = Field(min_items=1)
     
 class License(LicenseBase, table=True):
     id: uuid_pkg.UUID = Field(

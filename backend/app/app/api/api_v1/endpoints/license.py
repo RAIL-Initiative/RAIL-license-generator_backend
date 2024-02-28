@@ -82,7 +82,7 @@ async def generate_license(
     if license.sourcecode:
         artifacts.append("Source Code")
 
-    short_artifact_name = "/".join([artifact[0] for artifact in artifacts])
+    short_artifact_name = "".join([artifact[0] for artifact in artifacts])
 
     if license.license == "ResearchRAIL":
         template_file = "ResearchUseRail.jinja"
