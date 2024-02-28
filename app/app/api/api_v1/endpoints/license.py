@@ -1,7 +1,7 @@
 from enum import Enum
 import os
 import tempfile
-from typing import Any, List
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
@@ -56,9 +56,11 @@ async def generate_license(
     *,
     id: uuid_pkg.UUID,
     media_type: MediaType = "text/markdown",
+    git_sha: Optional[str] = None
 ) -> Any:
     """
     Generate license text for license with id "id".
+    In order to select a specific version of the license, you can provide a git_sha or 'head' to get the latest version locally.
     """
     license = crud.license.get(db, id=id)
 
@@ -96,14 +98,19 @@ async def generate_license(
     else:
         raise ValueError("Unknown license type")
     
-    commit = repo.get_object(license.git_commit_hash)
-    # dulwich expects bytes instead of str
-    path = bytes("app/app/templates/" + template_file, "utf-8")
-    mode, sha = tree_lookup_path(repo.get_object, commit.tree, path)
-    #file_object_at_creation_time = repo[sha]
-    return
+    if git_sha != "head":
+        git_sha = git_sha or license.git_commit_hash
+        commit = repo.get_object(git_sha.encode("ascii"))
+        # dulwich expects bytes instead of str
+        path = bytes("app/app/templates/" + template_file, "utf-8")
+        mode, sha = tree_lookup_path(repo.get_object, commit.tree, path)
+        file_object_at_creation_time = repo[sha].data.decode("utf-8")
+    else:
+        with open("/app/app/app/templates/" + template_file, "r") as template_file:
+            file_object_at_creation_time =  template_file.read()
+
     
-    template = Template(file_object_at_creation_time.decode("utf-8"))
+    template = Template(file_object_at_creation_time)
     rendered_text = template.render(
         request=request,
         ARTIFACTS=artifacts,
