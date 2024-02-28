@@ -23,6 +23,7 @@ sqlmodel = "^0.0.11"
 uvicorn = "^0.24.0.post1"
 pypandoc = "^1.12"
 slowapi = "^0.1.9"
+dulwich = "^0.21.7"
 
 [tool.poetry.dev-dependencies]
 mypy = "^1.8.0"

@@ -5,12 +5,16 @@ from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
+from jinja2 import Template
 import pypandoc
 from sqlalchemy.orm import Session
 import uuid as uuid_pkg
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from starlette.background import BackgroundTask
+
+from dulwich.repo import Repo
+from dulwich.object_store import tree_lookup_path
 
 from app import crud, models
 from app.api import deps
@@ -19,8 +23,7 @@ from app.core.rate_limiting import limiter
 
 
 router = APIRouter()
-
-templates = Jinja2Templates(directory="app/templates")
+repo = Repo.discover()
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -92,27 +95,34 @@ async def generate_license(
         template_file = "RAIL-AMS.jinja"
     else:
         raise ValueError("Unknown license type")
-        
-    templated_response = templates.TemplateResponse(name=template_file, context={
-        "request": request,
-        "ARTIFACTS": artifacts,
-        "SHORT_ARTIFACT_NAME": short_artifact_name,
-        "LICENSE_NAME": license.name,
-        "RESTRICTIONS":  restrictions
-        }
-    )
     
+    commit = repo.get_object(license.git_commit_hash)
+    # dulwich expects bytes instead of str
+    path = bytes("app/app/templates/" + template_file, "utf-8")
+    mode, sha = tree_lookup_path(repo.get_object, commit.tree, path)
+    #file_object_at_creation_time = repo[sha]
+    return
+    
+    template = Template(file_object_at_creation_time.decode("utf-8"))
+    rendered_text = template.render(
+        request=request,
+        ARTIFACTS=artifacts,
+        SHORT_ARTIFACT_NAME=short_artifact_name,
+        LICENSE_NAME=license.name,
+        RESTRICTIONS=restrictions
+    )
+
     if media_type == "text/markdown":
-        return StreamingResponse(iter(templated_response.body.decode("utf-8")), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.md"})
+        return StreamingResponse(iter(rendered_text), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.md"})
     if media_type == "text/plain":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.txt"})
+        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.txt"})
     if  media_type == "text/rtf":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.rtf"})
+        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.rtf"})
     if media_type == "text/latex":
-        return StreamingResponse(iter(pypandoc.convert_text(templated_response.body, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.latex"})
+        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.latex"})
     if media_type == "application/pdf":
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
-            pypandoc.convert_text(templated_response.body, format='markdown', outputfile=output_file.name, to='pdf')
+            pypandoc.convert_text(rendered_text, format='markdown', outputfile=output_file.name, to='pdf')
             def cleanup():
                 os.remove(output_file.name)
             return FileResponse(output_file.name, media_type="application/pdf", filename="license.pdf", background=BackgroundTask(cleanup))

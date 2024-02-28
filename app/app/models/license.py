@@ -5,10 +5,12 @@ from sqlalchemy import String
 from pydantic import root_validator, validator
 from sqlmodel import Field, Relationship, SQLModel
 import sqlmodel
+from dulwich.repo import Repo
 
 from .link_tables import License_LicenseRestriction_Link
 if TYPE_CHECKING:
     from .license_restriction import LicenseRestriction, License_LicenseRestriction_Link
+
 
 class LicenseBase(SQLModel):
     timestamp: datetime.datetime = sqlmodel.Field(nullable=False, sa_type=sqlmodel.DateTime(timezone=True))
@@ -36,8 +38,13 @@ class License(LicenseBase, table=True):
         index=True,
         nullable=False,
     )
+    git_commit_hash: str = Field(
+        nullable=False,
+        default=Repo.discover().head().decode("ascii")
+    )
     restrictions: list["LicenseRestriction"] = Relationship(back_populates='licenses_with_restrictions', link_model=License_LicenseRestriction_Link)
 
 class LicenseRead(LicenseBase):
     id: uuid_pkg.UUID
     restrictions: list["LicenseRestriction"]
+    git_commit_hash: str

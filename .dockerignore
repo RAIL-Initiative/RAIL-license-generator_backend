@@ -1,0 +1,6 @@
+/scripts
+.env
+.gitlab-ci.yml
+cookiecutter-config.yaml
+docker-compose.yml
+docker-compose.override.yml
