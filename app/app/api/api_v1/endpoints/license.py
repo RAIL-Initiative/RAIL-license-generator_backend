@@ -116,7 +116,10 @@ async def generate_license(
         ARTIFACTS=artifacts,
         SHORT_ARTIFACT_NAME=short_artifact_name,
         LICENSE_NAME=license.name,
-        RESTRICTIONS=restrictions
+        RESTRICTIONS=restrictions,
+        LICENSE_TIMESTAMP=license.timestamp,
+        LICENSE_ID=license.id,
+        LICENSE_TEMPLATE_VERSION=license.git_commit_hash
     )
 
     if media_type == "text/markdown":
