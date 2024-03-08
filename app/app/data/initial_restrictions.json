@@ -1,0 +1,127 @@
+[
+    {
+       "text":"To discriminate or exploit individuals or groups based on legally protected characteristics and/or vulnerabilities.",
+       "domain":"Discrimination",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"For weaponry or warfare.",
+       "domain":"Military",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To engage or enable fully automated decision-making that adversely impacts a natural person\\'s legal rights without expressly and intelligibly disclosing the impact to such natural person and providing an appeal process.",
+       "domain":"Legal",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To engage or enable fully automated decision-making that creates, modifies or terminates a binding, enforceable obligation between entities; whether these include natural persons or not.",
+       "domain":"Legal",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"For purposes of administration of justice, law enforcement, immigration, or asylum processes, such as predicting that a natural person will commit a crime or the likelihood thereof.",
+       "domain":"Discrimination",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To create, present or disseminate verifiably false or misleading information for economic gain or to intentionally deceive the public, including creating false impersonations of natural persons.",
+       "domain":"Disinformation",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To utilize personal information to infer additional personal information about a natural person, including but not limited to legally protected characteristics, vulnerabilities or categories; unless informed consent from the data subject to collect said inferred personal information for a stated purpose and defined duration is received.",
+       "domain":"Privacy",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To provide medical advice or make clinical decisions without necessary (external) accreditation of the system; unless the use is (i) in an internal research context with independent and accountable oversight and/or (ii) with medical professional oversight that is accompanied by any related compulsory certification and/or safety/quality standard for the implementation of the technology.",
+       "domain":"Health",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To synthesize or modify a natural person\\'s appearance, voice, or other individual characteristics, unless prior informed consent of said natural person is obtained.",
+       "domain":"Disinformation",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To autonomously interact with a natural person, in text or audio format, unless disclosure and consent is given prior to interaction that the system engaging in the interaction is not a natural person.",
+       "domain":"Disinformation",
+       "source":"RAIL Initiative"
+    },
+    {
+       "text":"To provide medical advice and medical results interpretation without external, human validation of such advice or interpretation.",
+       "domain":"Health",
+       "source":"Stable Diffusion"
+    },
+    {
+       "text":"In connection with any activities that present a risk of death or bodily harm to individuals, including self-harm or harm to others, or in connection with regulated or controlled substances.",
+       "domain":"Health",
+       "source":"Llama2"
+    },
+    {
+       "text":"In connection with activities that present a risk of death or bodily harm to individuals, including inciting or promoting violence, abuse, or any infliction of bodily harm to an individual or group of individuals",
+       "domain":"Health",
+       "source":"Llama2"
+    },
+    {
+       "text":"To generate or disseminate personal identifiable information that can be used to harm an individual or to invade the personal privacy of an individual.",
+       "domain":"Privacy",
+       "source":"AI Pubs"
+    },
+    {
+       "text":"To engage in, promote, incite, or facilitate the harassment, abuse, threatening, or bullying of individuals or groups of individuals.",
+       "domain":"Privacy",
+       "source":"LLama2"
+    },
+    {
+       "text":"For purposes of building or optimizing military weapons or in the service of nuclear proliferation or nuclear weapons technology.",
+       "domain":"Military",
+       "source":"AI2 Impact"
+    },
+    {
+       "text":"For purposes of military surveillance, including any research or development relating to military surveillance.",
+       "domain":"Military",
+       "source":"AI2 Impact"
+    },
+    {
+       "text":"In any way that violates any applicable national, federal, state, local or international law or regulation.",
+       "domain":"Legal",
+       "source":"Big Code"
+    },
+    {
+       "text":"To defame, disparage or otherwise harass others.",
+       "domain":"General",
+       "source":"AI Pubs"
+    },
+    {
+       "text":"In connection with any academic dishonesty, including submitting any informational content or output of a Model as Your own work in any academic setting.",
+       "domain":"Research",
+       "source":"AI2 Impact"
+    },
+    {
+       "text":"To generate and/or disseminate malware (including - but not limited to - ransomware) or any other content to be used for the purpose of Harming electronic systems;",
+       "domain":"Malware",
+       "source":"Big Code"
+    },
+    {
+       "text":"To defame or harm a natural person\\'s reputation, such as by generating, creating, promoting, or spreading defamatory content (statements, images, or other content).",
+       "domain":"Disinformation",
+       "source":"Llama2"
+    },
+    {
+       "text":"To generate or disseminate information (including - but not limited to - images, code, posts, articles), and place the information in any public context without expressly and intelligibly disclaiming that the information and/or content is machine generated.",
+       "domain":"Disinformation",
+       "source":"Big Code"
+    },
+    {
+       "text":"To Intentionally deceive or mislead others, including failing to appropriately disclose to end users any known dangers of your system.",
+       "domain":"General",
+       "source":"Llama2"
+    },
+    {
+       "text":"To engage in, promote, incite, or facilitate discrimination or other unlawful or harmful conduct in the provision of employment, employment benefits, credit, housing, or other essential goods and services.",
+       "domain":"Discrimination",
+       "source":"Llama2"
+    }
+ ]

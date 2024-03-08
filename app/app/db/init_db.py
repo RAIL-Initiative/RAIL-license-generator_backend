@@ -27,23 +27,23 @@ def init_db(db: Session) -> None:
         user = crud.user.create(db, obj_in=user_in)  # noqa: F841
     
     # read initial data from json file
-    with open('app/data/initial_data.json') as f:
+    with open('app/data/initial_restrictions.json') as f:
         data = json.load(f)
     
-    for source in set(data['Source'].values()):
+    for source in set([entry["source"] for entry in data]):
         crud.license_source.create(db, obj_in=models.LicenseSourceBase(name=source, approved=True))
 
-    for domain in set(data['Domain'].values()):
+    for domain in set([entry["domain"] for entry in data]):
         crud.license_domain.create(db, obj_in=models.LicenseDomainBase(name=domain))
 
     # flush so we can oberserve changes in the database
     db.flush()
 
-    for i, restriction in data['Restriction'].items():
-        source_id = crud.license_source.get_by_name(db, name=data['Source'][str(i)]).id
-        domain_id = crud.license_domain.get_by_name(db, name=data['Domain'][str(i)]).id
+    for entry in data:
+        source_id = crud.license_source.get_by_name(db, name=entry["source"]).id
+        domain_id = crud.license_domain.get_by_name(db, name=entry["domain"]).id
         crud.license_restriction.create(db, obj_in=models.LicenseRestriction(
-            text=restriction,
+            text=entry["text"],
             approved=True,
             source_id=source_id,
             domain_id=domain_id
