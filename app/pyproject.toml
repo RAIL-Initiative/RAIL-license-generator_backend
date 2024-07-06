@@ -14,7 +14,7 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 tenacity = "^8.2.3"
 emails = "^0.5.15"
 raven = "^6.10.0"
-gunicorn = "^21.2.0"
+gunicorn = "^22.0.0"
 psycopg2-binary = "^2.9.9"
 alembic = "^1.13.1"
 pytest = "^7.4.4"
