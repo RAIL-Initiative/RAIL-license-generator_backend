@@ -6,15 +6,15 @@ authors = ["Admin <admin@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = "^0.104.1"
-python-multipart = "^0.0.5"
+fastapi = "^0.109.1"
+python-multipart = "^0.0.7"
 email-validator = "^2.1.0.post1"
-requests = "^2.31.0"
+requests = "^2.32.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 tenacity = "^8.2.3"
 emails = "^0.5.15"
 raven = "^6.10.0"
-gunicorn = "^21.2.0"
+gunicorn = "^22.0.0"
 psycopg2-binary = "^2.9.9"
 alembic = "^1.13.1"
 pytest = "^7.4.4"
@@ -27,7 +27,7 @@ dulwich = "^0.21.7"
 
 [tool.poetry.dev-dependencies]
 mypy = "^1.8.0"
-black = "^24.1.0"
+black = "^24.3.0"
 isort = "^5.13.2"
 autoflake = "^2.2.1"
 flake8 = "^7.0.0"
