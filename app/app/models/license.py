@@ -22,7 +22,7 @@ class LicenseBase(SQLModel):
     data: bool = Field(default=False)
 
     # additional project information
-    project_url: Optional[AnyUrl] = Field(default=None)
+    project_url: Optional[str] = Field(default=None)
     additional_information: Optional[str] = Field(default=None)
 
     @root_validator
