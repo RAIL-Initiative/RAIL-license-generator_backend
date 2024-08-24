@@ -2,7 +2,7 @@ import datetime
 from typing import TYPE_CHECKING, Literal, Optional
 import uuid as uuid_pkg
 from sqlalchemy import String
-from pydantic import root_validator, validator
+from pydantic import root_validator, validator, AnyUrl
 from sqlmodel import Field, Relationship, SQLModel
 import sqlmodel
 from dulwich.repo import Repo
@@ -20,6 +20,10 @@ class LicenseBase(SQLModel):
     model: bool = Field(default=False)
     sourcecode: bool = Field(default=False)
     data: bool = Field(default=False)
+
+    # additional project information
+    project_url: Optional[AnyUrl] = Field(default=None)
+    additional_information: Optional[str] = Field(default=None)
 
     @root_validator
     def check_passwords_match(cls, values):
