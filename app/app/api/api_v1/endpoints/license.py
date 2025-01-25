@@ -9,7 +9,6 @@ from jinja2 import Template
 import pypandoc
 from sqlalchemy.orm import Session
 import uuid as uuid_pkg
-from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from starlette.background import BackgroundTask
 
@@ -126,6 +125,8 @@ async def generate_license(
         filename = (license.name + "-" + license.license).encode("latin1")
     except UnicodeEncodeError:
         filename = license.license.encode("latin1")
+    except Exception:
+        raise HTTPException(status_code=422, detail="The license name could not be encoded correctly. Please check the license name for special characters and contact the maintainers.")
 
     if media_type == "text/markdown":
         return StreamingResponse(iter(rendered_text), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={filename}.md"})
