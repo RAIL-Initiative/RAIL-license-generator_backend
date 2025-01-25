@@ -127,10 +127,10 @@ async def generate_license(
         # check if filename can be encodable and a proper filename for all platforms
         filename.encode("latin1")
         validate_filename(filename)
-    except (UnicodeEncodeError, ValidationError) as e:
-        print(e)
+    except (UnicodeEncodeError, ValidationError):
         filename = license.license.encode("latin1")
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=422, detail="The license name could not be encoded correctly. Please check the license name for special characters and contact the maintainers.")
 
     if media_type == "text/markdown":
