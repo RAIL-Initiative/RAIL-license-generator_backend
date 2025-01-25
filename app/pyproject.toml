@@ -24,6 +24,7 @@ uvicorn = "^0.24.0.post1"
 pypandoc = "^1.12"
 slowapi = "^0.1.9"
 dulwich = "^0.21.7"
+pathvalidate = "^3.2.3"
 
 [tool.poetry.group.dev.dependencies]
 locust = "^2.19.0"

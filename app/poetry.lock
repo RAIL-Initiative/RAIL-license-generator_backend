@@ -1825,6 +1825,22 @@ files = [
 ]
 
 [[package]]
+name = "pathvalidate"
+version = "3.2.3"
+description = "pathvalidate is a Python library to sanitize/validate a string such as filenames/file-paths/etc."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pathvalidate-3.2.3-py3-none-any.whl", hash = "sha256:5eaf0562e345d4b6d0c0239d0f690c3bd84d2a9a3c4c73b99ea667401b27bee1"},
+    {file = "pathvalidate-3.2.3.tar.gz", hash = "sha256:59b5b9278e30382d6d213497623043ebe63f10e29055be4419a9c04c721739cb"},
+]
+
+[package.extras]
+docs = ["Sphinx (>=2.4)", "sphinx_rtd_theme (>=1.2.2)", "urllib3 (<2)"]
+readme = ["path (>=13,<18)", "readmemaker (>=1.2.0)"]
+test = ["Faker (>=1.0.8)", "allpairspy (>=2)", "click (>=6.2)", "pytest (>=6.0.1)", "pytest-md-report (>=0.6.2)"]
+
+[[package]]
 name = "platformdirs"
 version = "4.3.6"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
@@ -2871,4 +2887,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "af7fcd564bf1fc442c7834b4da86962794b8a07deba67b6b4febc95d5fd98877"
+content-hash = "94c3a9b68ccc8fbd2e9defb84ad704cf0308b2200383432bb4262454ff37b0b2"

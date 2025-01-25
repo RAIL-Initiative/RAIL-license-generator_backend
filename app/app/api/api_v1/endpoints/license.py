@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 import uuid as uuid_pkg
 from pathlib import Path
 from starlette.background import BackgroundTask
+from pathvalidate import validate_filename, ValidationError
 
 from dulwich.repo import Repo
 from dulwich.object_store import tree_lookup_path
@@ -122,8 +123,12 @@ async def generate_license(
     )
 
     try:
-        filename = (license.name + "-" + license.license).encode("latin1")
-    except UnicodeEncodeError:
+        filename = license.name + "-" + license.license
+        # check if filename can be encodable and a proper filename for all platforms
+        filename.encode("latin1")
+        validate_filename(filename)
+    except (UnicodeEncodeError, ValidationError) as e:
+        print(e)
         filename = license.license.encode("latin1")
     except Exception:
         raise HTTPException(status_code=422, detail="The license name could not be encoded correctly. Please check the license name for special characters and contact the maintainers.")
