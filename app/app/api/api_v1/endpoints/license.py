@@ -122,20 +122,25 @@ async def generate_license(
         LICENSE_TEMPLATE_VERSION=license.git_commit_hash
     )
 
+    try:
+        filename = (license.name + "-" + license.license).encode("latin1")
+    except UnicodeEncodeError:
+        filename = license.license.encode("latin1")
+
     if media_type == "text/markdown":
-        return StreamingResponse(iter(rendered_text), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.md"})
+        return StreamingResponse(iter(rendered_text), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={filename}.md"})
     if media_type == "text/plain":
-        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.txt"})
+        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='plain')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={filename}.txt"})
     if  media_type == "text/rtf":
-        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.rtf"})
+        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='rtf')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={filename}.rtf"})
     if media_type == "text/latex":
-        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={license.name}-{license.license}.latex"})
+        return StreamingResponse(iter(pypandoc.convert_text(rendered_text, format='markdown', to='latex')), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={filename}.latex"})
     if media_type == "application/pdf":
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as output_file:
             pypandoc.convert_text(rendered_text, format='markdown', outputfile=output_file.name, to='pdf')
             def cleanup():
                 os.remove(output_file.name)
-            return FileResponse(output_file.name, media_type="application/pdf", filename="license.pdf", background=BackgroundTask(cleanup))
+            return FileResponse(output_file.name, media_type="application/pdf", filename="{filename}.pdf", background=BackgroundTask(cleanup))
             
 
 @router.post("/", response_model=models.LicenseRead)
